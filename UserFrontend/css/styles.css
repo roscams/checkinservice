@@ -1,0 +1,273 @@
+/* User Frontend Styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+    font-size: 16px;
+}
+
+.navbar-brand {
+    font-weight: 600;
+}
+
+.page {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.card {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.125);
+    margin-bottom: 20px;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.event-card {
+    height: 100%;
+}
+
+.event-card .card-body {
+    display: flex;
+    flex-direction: column;
+}
+
+.event-card .card-text {
+    flex-grow: 1;
+}
+
+.event-date {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.btn-checkin {
+    margin-top: auto;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+}
+
+/* Mobile-friendly table styles */
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Ensure table cells don't get too narrow on mobile */
+.table td, .table th {
+    min-width: 100px;
+    white-space: nowrap;
+}
+
+/* Allow certain columns to wrap */
+.table td.can-wrap, .table th.can-wrap {
+    white-space: normal;
+    min-width: 0;
+}
+
+.table th {
+    font-weight: 600;
+    color: #495057;
+}
+
+.badge {
+    font-weight: 500;
+}
+
+.badge-success {
+    background-color: #28a745;
+    color: white;
+}
+
+.badge-warning {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+/* Success modal customization */
+.modal-header.bg-success {
+    color: white;
+}
+
+.bi-check-circle-fill {
+    color: #28a745;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Toast customization */
+.toast {
+    background-color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.toast-success .toast-header {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.toast-error .toast-header {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+    .container {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .event-card {
+        margin-bottom: 15px;
+    }
+    
+    /* Adjust button sizes for better touch targets */
+    .btn {
+        padding: 0.5rem 0.75rem;
+        font-size: 1rem;
+    }
+    
+    /* Improve form elements on mobile */
+    input, select, textarea {
+        font-size: 16px !important; /* Prevents iOS zoom on focus */
+    }
+    
+    /* Make search input and button more usable on mobile */
+    .input-group {
+        display: flex;
+        flex-wrap: nowrap;
+    }
+    
+    .input-group .form-control {
+        flex: 1;
+    }
+}
+
+/* Small mobile devices */
+@media (max-width: 576px) {
+    body {
+        font-size: 14px;
+    }
+    
+    h2 {
+        font-size: 1.5rem;
+    }
+    
+    h5 {
+        font-size: 1.1rem;
+    }
+    
+    .card-header {
+        padding: 0.75rem;
+    }
+    
+    /* Adjust event cards for mobile */
+    #events-container {
+        display: block;
+    }
+    
+    #events-container .col-md-4 {
+        width: 100%;
+        margin-bottom: 1rem;
+    }
+    
+    /* Make sure action buttons have enough space */
+    .table td:last-child {
+        min-width: 120px;
+    }
+    
+    /* Adjust modal for mobile */
+    .modal-dialog {
+        margin: 0.5rem;
+    }
+    
+    .modal-body {
+        padding: 1rem;
+    }
+    
+    /* Adjust spacing for mobile */
+    .mb-4 {
+        margin-bottom: 1rem !important;
+    }
+}
+
+/* Attendees list page styles */
+#attendees-page .card {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+#attendees-page .card-header {
+    background-color: #f8f9fa;
+    padding: 1rem;
+}
+
+#attendees-list-body tr {
+    transition: background-color 0.2s ease;
+}
+
+#attendees-list-body tr:hover {
+    background-color: rgba(40, 167, 69, 0.05);
+}
+
+/* Style for the filter input in attendees list */
+#attendees-list-search {
+    max-width: 250px;
+}
+
+@media (max-width: 768px) {
+    #attendees-page .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    #attendees-page .card-header .input-group {
+        margin-top: 0.5rem;
+        max-width: 100%;
+        width: 100%;
+    }
+    
+    #attendees-page .table td {
+        padding: 0.5rem;
+    }
+}

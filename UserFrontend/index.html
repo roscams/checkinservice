@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check-in Service</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success">
+        <div class="container">
+            <a class="navbar-brand" href="#">Check-in Service</a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Events List Page -->
+        <div class="page" id="events-page">
+            <h2 class="mb-4">Available Events</h2>
+            <div class="row mb-4">
+                <div class="col">
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="event-search" placeholder="Search events...">
+                        <button class="btn btn-outline-secondary" type="button" id="refresh-events">
+                            <i class="bi bi-arrow-clockwise"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3" id="events-container">
+                <!-- Events will be loaded here -->
+            </div>
+            <div id="events-loading" class="text-center py-4">
+                <div class="spinner-border text-success" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+            <div id="events-empty" class="alert alert-info d-none">
+                No events available at this time.
+            </div>
+        </div>
+
+        <!-- Check-in Page -->
+        <div class="page d-none" id="checkin-page">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 id="checkin-event-title">Event Check-in</h2>
+                <div>
+                    <button class="btn btn-outline-primary me-2" id="view-all-attendees">
+                        <i class="bi bi-people"></i> View All Attendees
+                    </button>
+                    <button class="btn btn-outline-secondary" id="back-to-events">
+                        <i class="bi bi-arrow-left"></i> Back to Events
+                    </button>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Event Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 col-sm-12 mb-3 mb-md-0">
+                            <p><strong>Name:</strong> <span id="detail-event-name"></span></p>
+                            <p><strong>Date:</strong> <span id="detail-event-date"></span></p>
+                        </div>
+                        <div class="col-md-6 col-sm-12">
+                            <p><strong>Description:</strong> <span id="detail-event-description"></span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Check-in</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="attendee-search" placeholder="Search by name or email...">
+                            <button class="btn btn-outline-secondary" type="button" id="search-attendee">
+                                <i class="bi bi-search"></i> <span class="d-none d-md-inline">Search</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="search-results" class="d-none">
+                        <h6>Search Results:</h6>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th class="can-wrap">Name</th>
+                                        <th class="can-wrap d-none d-md-table-cell">Email</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="search-results-body">
+                                    <!-- Search results will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div id="no-results" class="alert alert-warning d-none">
+                        No attendees found matching your search.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Attendees List Page -->
+        <div class="page d-none" id="attendees-page">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 id="attendees-event-title">Event Attendees</h2>
+                <div>
+                    <button class="btn btn-outline-secondary" id="back-to-checkin">
+                        <i class="bi bi-arrow-left"></i> Back to Check-in
+                    </button>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Attendees List</h5>
+                    <div class="input-group" style="max-width: 300px;">
+                        <input type="text" class="form-control" id="attendees-list-search" placeholder="Filter attendees...">
+                        <button class="btn btn-outline-secondary" type="button" id="refresh-attendees">
+                            <i class="bi bi-arrow-clockwise"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th class="can-wrap">Name</th>
+                                    <th class="can-wrap d-none d-md-table-cell">Email</th>
+                                    <th>Status</th>
+                                    <th class="d-none d-md-table-cell">Check-in Time</th>
+                                </tr>
+                            </thead>
+                            <tbody id="attendees-list-body">
+                                <!-- Attendees will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="attendees-loading" class="text-center py-4 d-none">
+                        <div class="spinner-border text-success" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                    <div id="attendees-empty" class="alert alert-info d-none">
+                        No attendees found for this event.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Check-in Success Modal -->
+        <div class="modal fade" id="checkin-success-modal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header bg-success text-white">
+                        <h5 class="modal-title">Check-in Successful</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <div class="mb-4">
+                            <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
+                        </div>
+                        <h4 id="success-attendee-name">John Doe</h4>
+                        <p class="text-muted" id="success-attendee-email">john.doe@example.com</p>
+                        <p>Successfully checked in at <span id="success-checkin-time">12:34 PM</span></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="toast-notification" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <strong class="me-auto" id="toast-title">Notification</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body" id="toast-message">
+                <!-- Toast message will be set dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Global variable to store current event ID
+        window.currentEventId = null;
+        
+        // Function to extract event ID from URL
+        function getEventIdFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('eventId');
+        }
+        
+        // Function to update current event ID
+        window.updateCurrentEventId = function(eventId) {
+            window.currentEventId = eventId;
+            console.log('Current event ID updated:', eventId);
+        };
+    </script>
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/user.js"></script>
+</body>
+</html>

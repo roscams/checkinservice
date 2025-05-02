@@ -1,0 +1,50 @@
+@baseUrl = https://localhost:7080
+@eventId = {{createEvent.response.body.id}}
+@personId = {{getEvent.response.body.people[0].id}}
+
+### Get all events
+GET {{baseUrl}}/api/event
+
+### Create a new event
+# @name createEvent
+POST {{baseUrl}}/api/event
+Content-Type: application/json
+
+{
+  "name": "Tech Conference 2025",
+  "date": "2025-06-15T09:00:00Z",
+  "description": "Annual technology conference"
+}
+
+### Get event by ID
+# @name getEvent
+GET {{baseUrl}}/api/event/{{eventId}}
+
+### Upload CSV with attendees
+POST {{baseUrl}}/api/event/{{eventId}}/upload-csv
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="attendees.csv"
+Content-Type: text/csv
+
+Name,Email
+John Doe,john.doe@example.com
+Jane Smith,jane.smith@example.com
+Bob Johnson,bob.johnson@example.com
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### Check in a person
+POST {{baseUrl}}/api/checkin/{{eventId}}/person/{{personId}}
+
+### Get check-in status
+GET {{baseUrl}}/api/checkin/status/{{eventId}}
+
+### Get checked-in people
+GET {{baseUrl}}/api/event/{{eventId}}/checked-in
+
+### Get not checked-in people
+GET {{baseUrl}}/api/event/{{eventId}}/not-checked-in
+
+### Delete an event
+DELETE {{baseUrl}}/api/event/{{eventId}}

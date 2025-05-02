@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CheckinService.Api", "CheckinService.Api\CheckinService.Api.csproj", "{FDE72EC1-91B3-4456-836C-727229F24276}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FDE72EC1-91B3-4456-836C-727229F24276}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FDE72EC1-91B3-4456-836C-727229F24276}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FDE72EC1-91B3-4456-836C-727229F24276}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FDE72EC1-91B3-4456-836C-727229F24276}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
