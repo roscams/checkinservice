@@ -1,9 +1,11 @@
 using CheckinService.Api.Models;
 using CheckinService.Api.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CheckinService.Api.Controllers;
 
+[Authorize(Policy = "AdminOnly")]
 [ApiController]
 [Route("api/[controller]")]
 public class EventController : ControllerBase
