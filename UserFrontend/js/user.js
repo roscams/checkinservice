@@ -184,13 +184,13 @@ document.addEventListener('DOMContentLoaded', () => {
         filteredEvents.forEach(event => {
             const col = document.createElement('div');
             col.className = 'col mb-4'; // Using the col class for the row-cols system
-            
+
             const card = document.createElement('div');
             card.className = 'card event-card h-100';
-            
+
             const eventDate = new Date(event.date);
             const isUpcoming = eventDate > new Date();
-            
+
             // Format date in a more compact way for mobile
             const dateFormatOptions = {
                 weekday: window.innerWidth < 576 ? 'short' : 'long',
@@ -200,29 +200,50 @@ document.addEventListener('DOMContentLoaded', () => {
                 hour: '2-digit',
                 minute: '2-digit'
             };
-            
+
             // Truncate description for better display on mobile
             let description = event.description || '';
             if (window.innerWidth < 576 && description.length > 80) {
                 description = description.substring(0, 80) + '...';
             }
-            
-            card.innerHTML = `
-                <div class="card-header">
-                    <h5 class="card-title mb-0">${event.name}</h5>
-                </div>
-                <div class="card-body">
-                    <p class="event-date mb-2">
-                        <i class="bi bi-calendar-event"></i>
-                        ${eventDate.toLocaleString(undefined, dateFormatOptions)}
-                    </p>
-                    <p class="card-text">${description}</p>
-                    <button class="btn btn-success btn-checkin" data-id="${event.id}">
-                        <i class="bi bi-box-arrow-in-right"></i> Check-in
-                    </button>
-                </div>
-            `;
-            
+
+            // Create elements safely without XSS
+            const cardHeader = document.createElement('div');
+            cardHeader.className = 'card-header';
+
+            const cardTitle = document.createElement('h5');
+            cardTitle.className = 'card-title mb-0';
+            cardTitle.textContent = event.name;
+            cardHeader.appendChild(cardTitle);
+
+            const cardBody = document.createElement('div');
+            cardBody.className = 'card-body';
+
+            // Create event date with icon using DOM manipulation to prevent XSS
+            const eventDatePara = document.createElement('p');
+            eventDatePara.className = 'event-date mb-2';
+            eventDatePara.appendChild(createIcon('bi-calendar-event'));
+            eventDatePara.appendChild(document.createTextNode(' ' + eventDate.toLocaleString(undefined, dateFormatOptions)));
+
+            const descriptionPara = document.createElement('p');
+            descriptionPara.className = 'card-text';
+            descriptionPara.textContent = description;
+
+            // Create check-in button using DOM manipulation to prevent XSS
+            const checkinButton = createButton({
+                className: 'btn btn-success btn-checkin',
+                iconClass: 'bi-box-arrow-in-right',
+                text: ' Check-in',
+                textClass: '',
+                attributes: { 'data-id': event.id }
+            });
+
+            cardBody.appendChild(eventDatePara);
+            cardBody.appendChild(descriptionPara);
+            cardBody.appendChild(checkinButton);
+
+            card.appendChild(cardHeader);
+            card.appendChild(cardBody);
             col.appendChild(card);
             eventsContainer.appendChild(col);
         });
@@ -306,33 +327,53 @@ document.addEventListener('DOMContentLoaded', () => {
         searchResultsBody.innerHTML = '';
         noResults.classList.add('d-none');
         searchResults.classList.remove('d-none');
-        
+
         people.forEach(person => {
             const row = document.createElement('tr');
-            
-            row.innerHTML = `
-                <td class="can-wrap">${person.name}</td>
-                <td class="can-wrap d-none d-md-table-cell">${person.email}</td>
-                <td>
-                    <span class="badge ${person.checkedIn ? 'bg-success' : 'bg-warning text-dark'}">
-                        ${person.checkedIn ? 'Checked In' : 'Not Checked In'}
-                    </span>
-                </td>
-                <td>
-                    ${person.checkedIn
-                        ? `<button class="btn btn-sm btn-secondary" disabled>
-                            <i class="bi bi-check-circle"></i><span class="d-none d-md-inline"> Already Checked In</span>
-                           </button>`
-                        : `<button class="btn btn-sm btn-success checkin-person" data-id="${person.id}">
-                            <i class="bi bi-box-arrow-in-right"></i><span class="d-none d-md-inline"> Check In</span>
-                           </button>`
-                    }
-                </td>
-            `;
-            
+
+            // Create cells with textContent to prevent XSS
+            const nameCell = document.createElement('td');
+            nameCell.className = 'can-wrap';
+            nameCell.textContent = person.name;
+
+            const emailCell = document.createElement('td');
+            emailCell.className = 'can-wrap d-none d-md-table-cell';
+            emailCell.textContent = person.email;
+
+            const statusCell = document.createElement('td');
+            const statusBadge = document.createElement('span');
+            statusBadge.className = person.checkedIn ? 'badge bg-success' : 'badge bg-warning text-dark';
+            statusBadge.textContent = person.checkedIn ? 'Checked In' : 'Not Checked In';
+            statusCell.appendChild(statusBadge);
+
+            // Create action buttons using DOM manipulation to prevent XSS
+            const actionCell = document.createElement('td');
+            if (person.checkedIn) {
+                const disabledButton = createButton({
+                    className: 'btn btn-sm btn-secondary',
+                    iconClass: 'bi-check-circle',
+                    text: ' Already Checked In',
+                    attributes: { 'disabled': 'true' }
+                });
+                actionCell.appendChild(disabledButton);
+            } else {
+                const checkinButton = createButton({
+                    className: 'btn btn-sm btn-success checkin-person',
+                    iconClass: 'bi-box-arrow-in-right',
+                    text: ' Check In',
+                    attributes: { 'data-id': person.id }
+                });
+                actionCell.appendChild(checkinButton);
+            }
+
+            row.appendChild(nameCell);
+            row.appendChild(emailCell);
+            row.appendChild(statusCell);
+            row.appendChild(actionCell);
+
             searchResultsBody.appendChild(row);
         });
-        
+
         // Add event listeners to check-in buttons
         document.querySelectorAll('.checkin-person').forEach(btn => {
             btn.addEventListener('click', async (e) => {
@@ -490,7 +531,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         people.forEach(person => {
             const row = document.createElement('tr');
-            
+
             // Format check-in time if available
             let checkInTimeDisplay = '';
             if (person.checkedIn && person.checkInTime) {
@@ -502,18 +543,31 @@ document.addEventListener('DOMContentLoaded', () => {
                 };
                 checkInTimeDisplay = checkInTime.toLocaleTimeString(undefined, timeFormatOptions);
             }
-            
-            row.innerHTML = `
-                <td class="can-wrap">${person.name}</td>
-                <td class="can-wrap d-none d-md-table-cell">${person.email}</td>
-                <td>
-                    <span class="badge ${person.checkedIn ? 'bg-success' : 'bg-warning text-dark'}">
-                        ${person.checkedIn ? 'Checked In' : 'Not Checked In'}
-                    </span>
-                </td>
-                <td class="d-none d-md-table-cell">${person.checkedIn ? checkInTimeDisplay : '-'}</td>
-            `;
-            
+
+            // Create cells with textContent to prevent XSS
+            const nameCell = document.createElement('td');
+            nameCell.className = 'can-wrap';
+            nameCell.textContent = person.name;
+
+            const emailCell = document.createElement('td');
+            emailCell.className = 'can-wrap d-none d-md-table-cell';
+            emailCell.textContent = person.email;
+
+            const statusCell = document.createElement('td');
+            const statusBadge = document.createElement('span');
+            statusBadge.className = person.checkedIn ? 'badge bg-success' : 'badge bg-warning text-dark';
+            statusBadge.textContent = person.checkedIn ? 'Checked In' : 'Not Checked In';
+            statusCell.appendChild(statusBadge);
+
+            const timeCell = document.createElement('td');
+            timeCell.className = 'd-none d-md-table-cell';
+            timeCell.textContent = person.checkedIn ? checkInTimeDisplay : '-';
+
+            row.appendChild(nameCell);
+            row.appendChild(emailCell);
+            row.appendChild(statusCell);
+            row.appendChild(timeCell);
+
             attendeesListBody.appendChild(row);
         });
     }

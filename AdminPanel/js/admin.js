@@ -123,31 +123,61 @@ document.addEventListener('DOMContentLoaded', () => {
         filteredEvents.forEach(event => {
             const checkedInCount = event.people.filter(p => p.checkedIn).length;
             const row = document.createElement('tr');
-            
+
             // Format date in a more compact way for mobile
             const eventDate = new Date(event.date);
             const dateString = eventDate.toLocaleString(undefined, CONFIG.DATE_FORMAT_OPTIONS);
-            
+
             // Truncate description for better display
             const truncatedDesc = event.description && event.description.length > 50
                 ? event.description.substring(0, 50) + '...'
                 : event.description || '';
-            
-            row.innerHTML = `
-                <td>${event.name}</td>
-                <td>${dateString}</td>
-                <td class="can-wrap d-none d-md-table-cell">${truncatedDesc}</td>
-                <td>${event.people.length}</td>
-                <td>${checkedInCount} / ${event.people.length}</td>
-                <td>
-                    <button class="btn btn-sm btn-primary view-event" data-id="${event.id}">
-                        <i class="bi bi-eye"></i><span class="d-none d-md-inline"> View</span>
-                    </button>
-                    <button class="btn btn-sm btn-danger delete-event" data-id="${event.id}">
-                        <i class="bi bi-trash"></i><span class="d-none d-md-inline"> Delete</span>
-                    </button>
-                </td>
-            `;
+
+            // Create cells with textContent to prevent XSS
+            const nameCell = document.createElement('td');
+            nameCell.textContent = event.name;
+
+            const dateCell = document.createElement('td');
+            dateCell.textContent = dateString;
+
+            const descCell = document.createElement('td');
+            descCell.className = 'can-wrap d-none d-md-table-cell';
+            descCell.textContent = truncatedDesc;
+
+            const countCell = document.createElement('td');
+            countCell.textContent = event.people.length;
+
+            const checkinCell = document.createElement('td');
+            checkinCell.textContent = `${checkedInCount} / ${event.people.length}`;
+
+            // Create action buttons using DOM manipulation to prevent XSS
+            const actionsCell = document.createElement('td');
+
+            const viewButton = createButton({
+                className: 'btn btn-sm btn-primary view-event',
+                iconClass: 'bi-eye',
+                text: ' View',
+                attributes: { 'data-id': event.id }
+            });
+
+            const deleteButton = createButton({
+                className: 'btn btn-sm btn-danger delete-event',
+                iconClass: 'bi-trash',
+                text: ' Delete',
+                attributes: { 'data-id': event.id }
+            });
+
+            actionsCell.appendChild(viewButton);
+            actionsCell.appendChild(document.createTextNode(' '));
+            actionsCell.appendChild(deleteButton);
+
+            row.appendChild(nameCell);
+            row.appendChild(dateCell);
+            row.appendChild(descCell);
+            row.appendChild(countCell);
+            row.appendChild(checkinCell);
+            row.appendChild(actionsCell);
+
             eventsTableBody.appendChild(row);
         });
         
@@ -289,7 +319,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         filteredAttendees.forEach(person => {
             const row = document.createElement('tr');
-            
+
             // Format check-in time in a more compact way
             let checkInTimeDisplay = '-';
             if (person.checkedIn && person.checkInTime) {
@@ -301,36 +331,74 @@ document.addEventListener('DOMContentLoaded', () => {
                     day: 'numeric'
                 });
             }
-            
-            row.innerHTML = `
-                <td class="can-wrap">${person.name}</td>
-                <td class="can-wrap d-none d-md-table-cell">${person.email}</td>
-                <td>${person.checkedIn ?
-                    '<span class="badge bg-success">Checked In</span>' :
-                    '<span class="badge bg-warning text-dark">Not Checked In</span>'}
-                </td>
-                <td>${checkInTimeDisplay}</td>
-                <td>
-                    <div class="dropdown">
-                        <button class="btn btn-sm btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-gear"></i> Actions
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li>
-                                <a class="dropdown-item toggle-checkin" href="#" data-id="${person.id}">
-                                    <i class="bi bi-${person.checkedIn ? 'x-circle' : 'check-circle'}"></i>
-                                    ${person.checkedIn ? 'Uncheck' : 'Check In'}
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item remove-person" href="#" data-id="${person.id}">
-                                    <i class="bi bi-trash"></i> Remove
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </td>
-            `;
+
+            // Create cells with textContent to prevent XSS
+            const nameCell = document.createElement('td');
+            nameCell.className = 'can-wrap';
+            nameCell.textContent = person.name;
+
+            const emailCell = document.createElement('td');
+            emailCell.className = 'can-wrap d-none d-md-table-cell';
+            emailCell.textContent = person.email;
+
+            const statusCell = document.createElement('td');
+            const statusBadge = document.createElement('span');
+            statusBadge.className = person.checkedIn ? 'badge bg-success' : 'badge bg-warning text-dark';
+            statusBadge.textContent = person.checkedIn ? 'Checked In' : 'Not Checked In';
+            statusCell.appendChild(statusBadge);
+
+            const timeCell = document.createElement('td');
+            timeCell.textContent = checkInTimeDisplay;
+
+            // Create dropdown actions using DOM manipulation to prevent XSS
+            const actionsCell = document.createElement('td');
+
+            const dropdown = document.createElement('div');
+            dropdown.className = 'dropdown';
+
+            const dropdownButton = document.createElement('button');
+            dropdownButton.className = 'btn btn-sm btn-primary dropdown-toggle';
+            dropdownButton.type = 'button';
+            dropdownButton.setAttribute('data-bs-toggle', 'dropdown');
+            dropdownButton.setAttribute('aria-expanded', 'false');
+            dropdownButton.appendChild(createIcon('bi-gear'));
+            dropdownButton.appendChild(document.createTextNode(' Actions'));
+
+            const dropdownMenu = document.createElement('ul');
+            dropdownMenu.className = 'dropdown-menu';
+
+            // Toggle check-in item
+            const toggleItem = document.createElement('li');
+            const toggleLink = document.createElement('a');
+            toggleLink.className = 'dropdown-item toggle-checkin';
+            toggleLink.href = '#';
+            toggleLink.setAttribute('data-id', person.id);
+            toggleLink.appendChild(createIcon(person.checkedIn ? 'bi-x-circle' : 'bi-check-circle'));
+            toggleLink.appendChild(document.createTextNode(person.checkedIn ? ' Uncheck' : ' Check In'));
+            toggleItem.appendChild(toggleLink);
+
+            // Remove person item
+            const removeItem = document.createElement('li');
+            const removeLink = document.createElement('a');
+            removeLink.className = 'dropdown-item remove-person';
+            removeLink.href = '#';
+            removeLink.setAttribute('data-id', person.id);
+            removeLink.appendChild(createIcon('bi-trash'));
+            removeLink.appendChild(document.createTextNode(' Remove'));
+            removeItem.appendChild(removeLink);
+
+            dropdownMenu.appendChild(toggleItem);
+            dropdownMenu.appendChild(removeItem);
+            dropdown.appendChild(dropdownButton);
+            dropdown.appendChild(dropdownMenu);
+            actionsCell.appendChild(dropdown);
+
+            row.appendChild(nameCell);
+            row.appendChild(emailCell);
+            row.appendChild(statusCell);
+            row.appendChild(timeCell);
+            row.appendChild(actionsCell);
+
             attendeesTableBody.appendChild(row);
         });
         
