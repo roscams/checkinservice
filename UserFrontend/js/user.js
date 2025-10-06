@@ -219,18 +219,24 @@ document.addEventListener('DOMContentLoaded', () => {
             const cardBody = document.createElement('div');
             cardBody.className = 'card-body';
 
+            // Create event date with icon using DOM manipulation to prevent XSS
             const eventDatePara = document.createElement('p');
             eventDatePara.className = 'event-date mb-2';
-            eventDatePara.innerHTML = `<i class="bi bi-calendar-event"></i> ${eventDate.toLocaleString(undefined, dateFormatOptions)}`;
+            eventDatePara.appendChild(createIcon('bi-calendar-event'));
+            eventDatePara.appendChild(document.createTextNode(' ' + eventDate.toLocaleString(undefined, dateFormatOptions)));
 
             const descriptionPara = document.createElement('p');
             descriptionPara.className = 'card-text';
             descriptionPara.textContent = description;
 
-            const checkinButton = document.createElement('button');
-            checkinButton.className = 'btn btn-success btn-checkin';
-            checkinButton.setAttribute('data-id', event.id);
-            checkinButton.innerHTML = '<i class="bi bi-box-arrow-in-right"></i> Check-in';
+            // Create check-in button using DOM manipulation to prevent XSS
+            const checkinButton = createButton({
+                className: 'btn btn-success btn-checkin',
+                iconClass: 'bi-box-arrow-in-right',
+                text: ' Check-in',
+                textClass: '',
+                attributes: { 'data-id': event.id }
+            });
 
             cardBody.appendChild(eventDatePara);
             cardBody.appendChild(descriptionPara);
@@ -340,15 +346,24 @@ document.addEventListener('DOMContentLoaded', () => {
             statusBadge.textContent = person.checkedIn ? 'Checked In' : 'Not Checked In';
             statusCell.appendChild(statusBadge);
 
+            // Create action buttons using DOM manipulation to prevent XSS
             const actionCell = document.createElement('td');
             if (person.checkedIn) {
-                actionCell.innerHTML = `<button class="btn btn-sm btn-secondary" disabled>
-                    <i class="bi bi-check-circle"></i><span class="d-none d-md-inline"> Already Checked In</span>
-                </button>`;
+                const disabledButton = createButton({
+                    className: 'btn btn-sm btn-secondary',
+                    iconClass: 'bi-check-circle',
+                    text: ' Already Checked In',
+                    attributes: { 'disabled': 'true' }
+                });
+                actionCell.appendChild(disabledButton);
             } else {
-                actionCell.innerHTML = `<button class="btn btn-sm btn-success checkin-person" data-id="${escapeHtml(person.id)}">
-                    <i class="bi bi-box-arrow-in-right"></i><span class="d-none d-md-inline"> Check In</span>
-                </button>`;
+                const checkinButton = createButton({
+                    className: 'btn btn-sm btn-success checkin-person',
+                    iconClass: 'bi-box-arrow-in-right',
+                    text: ' Check In',
+                    attributes: { 'data-id': person.id }
+                });
+                actionCell.appendChild(checkinButton);
             }
 
             row.appendChild(nameCell);

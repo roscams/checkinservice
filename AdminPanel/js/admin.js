@@ -150,15 +150,26 @@ document.addEventListener('DOMContentLoaded', () => {
             const checkinCell = document.createElement('td');
             checkinCell.textContent = `${checkedInCount} / ${event.people.length}`;
 
+            // Create action buttons using DOM manipulation to prevent XSS
             const actionsCell = document.createElement('td');
-            actionsCell.innerHTML = `
-                <button class="btn btn-sm btn-primary view-event" data-id="${escapeHtml(event.id)}">
-                    <i class="bi bi-eye"></i><span class="d-none d-md-inline"> View</span>
-                </button>
-                <button class="btn btn-sm btn-danger delete-event" data-id="${escapeHtml(event.id)}">
-                    <i class="bi bi-trash"></i><span class="d-none d-md-inline"> Delete</span>
-                </button>
-            `;
+
+            const viewButton = createButton({
+                className: 'btn btn-sm btn-primary view-event',
+                iconClass: 'bi-eye',
+                text: ' View',
+                attributes: { 'data-id': event.id }
+            });
+
+            const deleteButton = createButton({
+                className: 'btn btn-sm btn-danger delete-event',
+                iconClass: 'bi-trash',
+                text: ' Delete',
+                attributes: { 'data-id': event.id }
+            });
+
+            actionsCell.appendChild(viewButton);
+            actionsCell.appendChild(document.createTextNode(' '));
+            actionsCell.appendChild(deleteButton);
 
             row.appendChild(nameCell);
             row.appendChild(dateCell);
@@ -339,27 +350,48 @@ document.addEventListener('DOMContentLoaded', () => {
             const timeCell = document.createElement('td');
             timeCell.textContent = checkInTimeDisplay;
 
+            // Create dropdown actions using DOM manipulation to prevent XSS
             const actionsCell = document.createElement('td');
-            actionsCell.innerHTML = `
-                <div class="dropdown">
-                    <button class="btn btn-sm btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-gear"></i> Actions
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li>
-                            <a class="dropdown-item toggle-checkin" href="#" data-id="${escapeHtml(person.id)}">
-                                <i class="bi bi-${person.checkedIn ? 'x-circle' : 'check-circle'}"></i>
-                                ${person.checkedIn ? 'Uncheck' : 'Check In'}
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item remove-person" href="#" data-id="${escapeHtml(person.id)}">
-                                <i class="bi bi-trash"></i> Remove
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            `;
+
+            const dropdown = document.createElement('div');
+            dropdown.className = 'dropdown';
+
+            const dropdownButton = document.createElement('button');
+            dropdownButton.className = 'btn btn-sm btn-primary dropdown-toggle';
+            dropdownButton.type = 'button';
+            dropdownButton.setAttribute('data-bs-toggle', 'dropdown');
+            dropdownButton.setAttribute('aria-expanded', 'false');
+            dropdownButton.appendChild(createIcon('bi-gear'));
+            dropdownButton.appendChild(document.createTextNode(' Actions'));
+
+            const dropdownMenu = document.createElement('ul');
+            dropdownMenu.className = 'dropdown-menu';
+
+            // Toggle check-in item
+            const toggleItem = document.createElement('li');
+            const toggleLink = document.createElement('a');
+            toggleLink.className = 'dropdown-item toggle-checkin';
+            toggleLink.href = '#';
+            toggleLink.setAttribute('data-id', person.id);
+            toggleLink.appendChild(createIcon(person.checkedIn ? 'bi-x-circle' : 'bi-check-circle'));
+            toggleLink.appendChild(document.createTextNode(person.checkedIn ? ' Uncheck' : ' Check In'));
+            toggleItem.appendChild(toggleLink);
+
+            // Remove person item
+            const removeItem = document.createElement('li');
+            const removeLink = document.createElement('a');
+            removeLink.className = 'dropdown-item remove-person';
+            removeLink.href = '#';
+            removeLink.setAttribute('data-id', person.id);
+            removeLink.appendChild(createIcon('bi-trash'));
+            removeLink.appendChild(document.createTextNode(' Remove'));
+            removeItem.appendChild(removeLink);
+
+            dropdownMenu.appendChild(toggleItem);
+            dropdownMenu.appendChild(removeItem);
+            dropdown.appendChild(dropdownButton);
+            dropdown.appendChild(dropdownMenu);
+            actionsCell.appendChild(dropdown);
 
             row.appendChild(nameCell);
             row.appendChild(emailCell);
