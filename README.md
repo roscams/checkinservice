@@ -114,7 +114,62 @@ Jane Smith,jane.smith@example.com
 
 ## Configuration
 
-Both frontends have a configuration file at `js/config.js` where you can set the API URL and other settings.
+### Authentication Configuration
+
+The API now requires JWT authentication for all endpoints. You need to configure an authentication provider in `CheckinService.Api/appsettings.json`:
+
+```json
+{
+  "Auth": {
+    "Authority": "https://your-auth-provider.com",
+    "Audience": "checkin-service-api"
+  }
+}
+```
+
+#### Supported Authentication Providers
+
+- **Azure AD B2C** (recommended for Azure deployments)
+- **Auth0**
+- **IdentityServer**
+- **Firebase Auth**
+- Any other OAuth 2.0 / OpenID Connect provider
+
+#### Authorization Policies
+
+The API uses role-based authorization with two policies:
+
+- **AdminOnly**: Required for event management endpoints (create, delete events, upload CSV)
+  - Requires `Admin` role
+- **CheckInStaff**: Required for check-in endpoints
+  - Requires either `Admin` or `CheckInStaff` role
+
+#### Frontend Configuration
+
+Both frontends have a configuration file at `js/config.js` where you can set the API URL and other settings. You'll need to implement login functionality and include JWT tokens in API requests:
+
+```javascript
+// Example: Adding authentication to API calls
+async function apiCall(endpoint, options = {}) {
+    const token = localStorage.getItem('authToken');
+
+    const response = await fetch(`${CONFIG.API_URL}/${endpoint}`, {
+        ...options,
+        headers: {
+            ...options.headers,
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        }
+    });
+
+    if (response.status === 401) {
+        // Redirect to login
+        window.location.href = '/login.html';
+    }
+
+    return response;
+}
+```
 
 ## Technologies Used
 
