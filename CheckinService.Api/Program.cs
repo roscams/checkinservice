@@ -20,13 +20,17 @@ builder.Services.AddScoped<CheckinRepository>();
 builder.Services.AddSingleton<CsvParserService>();
 
 // Add CORS policy
+var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>()
+    ?? throw new InvalidOperationException("AllowedOrigins not configured");
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
+    options.AddPolicy("RestrictedCors", policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.WithOrigins(allowedOrigins)
               .AllowAnyMethod()
-              .AllowAnyHeader();
+              .AllowAnyHeader()
+              .AllowCredentials();
     });
 });
 
@@ -40,7 +44,7 @@ app.UseSwaggerUI();
 app.UseHttpsRedirection();
 
 // Enable CORS
-app.UseCors("AllowAll");
+app.UseCors("RestrictedCors");
 
 app.UseAuthorization();
 
